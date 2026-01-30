@@ -1,39 +1,43 @@
-const mongoose = require('mongoose');
 
-const gigSchema = new mongoose.Schema({
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+
+const Gig = sequelize.define('Gig', {
   title: {
-    type: String,
-    required: [true, 'Please provide a title'],
-    trim: true,
-    maxlength: [100, 'Title cannot be more than 100 characters']
+    type: DataTypes.STRING,
+    allowNull: false
   },
   description: {
-    type: String,
-    required: [true, 'Please provide a description'],
-    maxlength: [1000, 'Description cannot be more than 1000 characters']
+    type: DataTypes.TEXT,
+    allowNull: false
   },
   budget: {
-    type: Number,
-    required: [true, 'Please provide a budget'],
-    min: [1, 'Budget must be at least 1']
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false
   },
-  ownerId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+  deadline: {
+    type: DataTypes.DATE,
+    allowNull: false
   },
   status: {
-    type: String,
-    enum: ['open', 'assigned'],
-    default: 'open'
+    type: DataTypes.ENUM('open', 'assigned', 'in_progress', 'completed', 'cancelled'),
+    defaultValue: 'open'
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
+  category: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  clientId: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  assignedFreelancerId: {
+    type: DataTypes.INTEGER,
+    allowNull: true
   }
+}, {
+  tableName: 'gigs',
+  timestamps: true
 });
 
-
-gigSchema.index({ title: 'text', description: 'text' });
-
-module.exports = mongoose.model('Gig', gigSchema);
+module.exports = Gig;

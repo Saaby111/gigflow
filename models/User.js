@@ -1,43 +1,33 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const validator = require('validator');
 
-const userSchema = new mongoose.Schema({
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+
+const User = sequelize.define('User', {
   name: {
-    type: String,
-    required: [true, 'Please provide a name'],
-    trim: true,
-    maxlength: [50, 'Name cannot be more than 50 characters']
+    type: DataTypes.STRING,
+    allowNull: false
   },
   email: {
-    type: String,
-    required: [true, 'Please provide an email'],
-    unique: true,
-    lowercase: true,
-    validate: [validator.isEmail, 'Please provide a valid email']
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true
+  },
+  
+  role: {
+    type: DataTypes.ENUM('client', 'freelancer'),
+    allowNull: false,
+    defaultValue: 'client'
   },
   password: {
-    type: String,
-    required: [true, 'Please provide a password'],
-    minlength: [6, 'Password must be at least 6 characters'],
-    select: false
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
+    type: DataTypes.STRING,
+    allowNull: false
   }
+}, {
+  tableName: 'users',
+  timestamps: true
 });
 
+// REMOVE any associate function if it exists
+// User.associate = (models) => { ... }
 
-userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 12);
-  next();
-});
-
-
-userSchema.methods.comparePassword = async function(candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
-};
-
-module.exports = mongoose.model('User', userSchema);
+module.exports = User;

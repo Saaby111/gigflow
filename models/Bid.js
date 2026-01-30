@@ -1,38 +1,36 @@
-const mongoose = require('mongoose');
 
-const bidSchema = new mongoose.Schema({
-  gigId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Gig',
-    required: true
-  },
-  freelancerId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  message: {
-    type: String,
-    required: [true, 'Please provide a message'],
-    maxlength: [500, 'Message cannot be more than 500 characters']
-  },
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+
+const Bid = sequelize.define('Bid', {
   price: {
-    type: Number,
-    required: [true, 'Please provide a price'],
-    min: [1, 'Price must be at least 1']
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false
+  },
+  proposal: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  deliveryTime: {
+    type: DataTypes.INTEGER,
+    allowNull: false
   },
   status: {
-    type: String,
-    enum: ['pending', 'hired', 'rejected'],
-    default: 'pending'
+    type: DataTypes.ENUM('pending', 'hired', 'accepted', 'rejected'),
+    defaultValue: 'pending'
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
+  gigId: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  freelancerId: {
+    type: DataTypes.INTEGER,
+    allowNull: false
   }
+}, {
+  tableName: 'bids',
+  timestamps: true,
+  underscored: true 
 });
 
-
-bidSchema.index({ gigId: 1, freelancerId: 1 }, { unique: true });
-
-module.exports = mongoose.model('Bid', bidSchema);
+module.exports = Bid;
